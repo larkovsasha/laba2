@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall -Wextra -pthread
-TARGET_CLIENT = cliegit add README.mdnt
+TARGET_CLIENT = client
 TARGET_SERVER = server
 SOURCES_CLIENT = client.cpp
 SOURCES_SERVER = server.cpp

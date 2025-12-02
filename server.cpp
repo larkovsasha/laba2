@@ -11,6 +11,7 @@ private:
     };
     State current_state;
     std::string received_message;
+    const std::string PONG_ = PONG;
 
 public:
     Server() : running(true), current_state(State::WAIT_REQUEST) {
@@ -61,13 +62,18 @@ private:
 
     void process_request_state() {
         std::cout << "Сервер: обработка сообщения" << std::endl;
-        current_state = State::SEND_RESPONSE;
+        if (received_message != PING) {
+            std::cout << "Сервер: получен не пинг" << std::endl;
+            current_state = State::HANDLE_ERROR;
+        } else {
+            current_state = State::SEND_RESPONSE;
+        }
     }
 
     void send_response_state() {
         std::cout << "Сервер: отправка ответа клиенту" << std::endl;
-        if (write_to_shared_file(SHARED_FILE, SERVER_MSG + received_message)) {
-            std::cout << "Сервер: ответ отправлен: \"" << received_message << "\"" << std::endl;
+        if (write_to_shared_file(SHARED_FILE, SERVER_MSG + PONG_)) {
+            std::cout << "Сервер: ответ отправлен: \"" << PONG_ << "\"" << std::endl;
             std::cout << std::endl;
             current_state = State::WAIT_REQUEST;
         } else {

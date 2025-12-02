@@ -11,7 +11,8 @@ private:
         HANDLE_ERROR
     };
     State current_state;
-    std::string user_message;
+//    const std::string user_message = PING;
+    const std::string PING_ = PING;
     int response_timeout_counter = 0;
     const int MAX_RESPONSE_WAIT = 10;
 public:
@@ -40,7 +41,7 @@ public:
                     handle_error_state();
                     break;
             }
-            usleep(400000); // 04s
+            usleep(800000); // 04s
         }
 
         std::cout << "Клиент завершил работу" << std::endl;
@@ -62,26 +63,26 @@ private:
     }
 
     void get_user_input_state() {
-        std::cout << "\nВведите сообщение для сервера: ";
-
-        if (!std::getline(std::cin, user_message) || user_message == "exit") {
-            running = false;
-            return;
-        }
-        if (user_message.size() >= BUFFER_SIZE || !is_valid_message(user_message)) {
-            current_state = State::HANDLE_ERROR;
-            return;
-        }
-        if (!user_message.empty()) {
-            current_state = State::SEND_MESSAGE;
-        }
+//        std::cout << "\nВведите сообщение для сервера: ";
+//
+//        if (!std::getline(std::cin, user_message) || user_message == "exit") {
+//            running = false;
+//            return;
+//        }
+//        if (user_message.size() >= BUFFER_SIZE || !is_valid_message(user_message)) {
+//            current_state = State::HANDLE_ERROR;
+//            return;
+//        }
+//        if (!user_message.empty()) {
+//            current_state = State::SEND_MESSAGE;
+//        }
+        current_state = State::SEND_MESSAGE;
     }
 
     void send_message_state() {
-        std::cout << "Клиент: отправка сообщения: \"" << user_message << "\"" << std::endl;
+        std::cout << "Клиент: отправка сообщения: \"" << PING_ << "\"" << std::endl;
 
-
-        if (write_to_shared_file(SHARED_FILE, CLIENT_MSG + user_message)) {
+        if (write_to_shared_file(SHARED_FILE, CLIENT_MSG + PING_)) {
             std::cout << "Клиент: сообщение отправлено" << std::endl;
             current_state = State::WAIT_RESPONSE;
         } else {
