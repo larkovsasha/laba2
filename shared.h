@@ -14,7 +14,7 @@
 const std::string SHARED_FILE = "/tmp/message_shared.txt";
 const std::string LOCK_FILE = "/tmp/message_shared.lock";
 
-const int BUFFER_SIZE = 18;
+const int BUFFER_SIZE = 16;
 
 const char *PING = "PING";
 const char *PONG = "PONG";

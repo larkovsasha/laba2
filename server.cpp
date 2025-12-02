@@ -19,7 +19,7 @@ public:
     }
 
     void run() {
-        std::cout << "=== Сервер запущен ===" << std::endl;
+        std::cout << "=== Server started ===" << std::endl;
         while (running) {
             switch (current_state) {
                 case State::WAIT_REQUEST:
@@ -51,7 +51,7 @@ private:
         }
         if (request.find(CLIENT_MSG) == 0) {
             received_message = request.substr(CLIENT_MSG_SIZE);
-            std::cout << "Сервер: получено сообщение от клиента: \"" << received_message << "\"" << std::endl;
+            std::cout << "Server: message received from client: \"" << received_message << "\"" << std::endl;
             current_state = State::PROCESS_REQUEST;
             return;
         }
@@ -61,9 +61,9 @@ private:
     }
 
     void process_request_state() {
-        std::cout << "Сервер: обработка сообщения" << std::endl;
+        std::cout << "Server: message processing" << std::endl;
         if (received_message != PING) {
-            std::cout << "Сервер: получен не пинг" << std::endl;
+            std::cout << "Server: message is not ping" << std::endl;
             current_state = State::HANDLE_ERROR;
         } else {
             current_state = State::SEND_RESPONSE;
@@ -71,22 +71,22 @@ private:
     }
 
     void send_response_state() {
-        std::cout << "Сервер: отправка ответа клиенту" << std::endl;
+        std::cout << "Server: sending response to client" << std::endl;
         if (write_to_shared_file(SHARED_FILE, SERVER_MSG + PONG_)) {
-            std::cout << "Сервер: ответ отправлен: \"" << PONG_ << "\"" << std::endl;
+            std::cout << "Server: response have sent: \"" << PONG_ << "\"" << std::endl;
             std::cout << std::endl;
             current_state = State::WAIT_REQUEST;
         } else {
-            std::cerr << "Сервер: ошибка отправки ответа" << std::endl;
+            std::cerr << "Server: error message sending" << std::endl;
             current_state = State::HANDLE_ERROR;
         }
     }
 
     void handle_error_state() {
-        std::cout << "Сервер: состояние ошибки" << std::endl;
+        std::cout << "Server: error state" << std::endl;
         cleanup_shared_files();
         if (write_to_shared_file(SHARED_FILE, ERROR_MSG)) {
-            std::cout << "Сервер: ошибка отправлена." << std::endl;
+            std::cout << "Server: error sent to client" << std::endl;
             std::cout << std::endl;
             current_state = State::WAIT_REQUEST;
         } else {
@@ -99,7 +99,7 @@ private:
     void cleanup_shared_files() {
         std::remove(SHARED_FILE.c_str());
         std::remove(LOCK_FILE.c_str());
-        std::cout << "Сервер: очищены shared файлы" << std::endl;
+        std::cout << "Server: shared files cleared" << std::endl;
     }
 };
 

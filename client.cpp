@@ -11,16 +11,16 @@ private:
         HANDLE_ERROR
     };
     State current_state;
-//    const std::string user_message = PING;
-    const std::string PING_ = PING;
+    std::string user_message;
+//    const std::string PING_ = PING;
     int response_timeout_counter = 0;
     const int MAX_RESPONSE_WAIT = 10;
 public:
     Client() : running(true), current_state(State::GET_USER_INPUT) {}
 
     void run() {
-        std::cout << "=== Клиент запущен ===" << std::endl;
-        std::cout << "Введите 'exit' для завершения" << std::endl;
+        std::cout << "=== Client started ===" << std::endl;
+        std::cout << "Enter 'exit' to exit" << std::endl;
         std::cout << std::endl;
 
         while (running) {
@@ -44,7 +44,7 @@ public:
             usleep(800000); // 04s
         }
 
-        std::cout << "Клиент завершил работу" << std::endl;
+        std::cout << "Client stopped" << std::endl;
     }
 
 private:
@@ -59,40 +59,40 @@ private:
 
             return false;
         }
-        return true;
+        return message == PING;
     }
 
     void get_user_input_state() {
 //        std::cout << "\nВведите сообщение для сервера: ";
-//
-//        if (!std::getline(std::cin, user_message) || user_message == "exit") {
-//            running = false;
-//            return;
-//        }
-//        if (user_message.size() >= BUFFER_SIZE || !is_valid_message(user_message)) {
-//            current_state = State::HANDLE_ERROR;
-//            return;
-//        }
-//        if (!user_message.empty()) {
-//            current_state = State::SEND_MESSAGE;
-//        }
-        current_state = State::SEND_MESSAGE;
+
+        if (!std::getline(std::cin, user_message) || user_message == "exit") {
+            running = false;
+            return;
+        }
+        if (user_message.size() >= BUFFER_SIZE || !is_valid_message(user_message)) {
+            current_state = State::HANDLE_ERROR;
+            return;
+        }
+        if (!user_message.empty()) {
+            current_state = State::SEND_MESSAGE;
+        }
+//        current_state = State::SEND_MESSAGE;
     }
 
     void send_message_state() {
-        std::cout << "Клиент: отправка сообщения: \"" << PING_ << "\"" << std::endl;
+        std::cout << "Client: message sending: \"" << user_message << "\"" << std::endl;
 
-        if (write_to_shared_file(SHARED_FILE, CLIENT_MSG + PING_)) {
-            std::cout << "Клиент: сообщение отправлено" << std::endl;
+        if (write_to_shared_file(SHARED_FILE, CLIENT_MSG + user_message)) {
+            std::cout << "Client: message have sent" << std::endl;
             current_state = State::WAIT_RESPONSE;
         } else {
-            std::cerr << "Клиент: ошибка отправки сообщения" << std::endl;
+            std::cerr << "Client: error message sending" << std::endl;
             current_state = State::HANDLE_ERROR;
         }
     }
 
     void wait_response_state() {
-        std::cout << "Клиент: ожидание ответа от сервера" << std::endl;
+        std::cout << "Client: waiting for response" << std::endl;
         current_state = State::READ_RESPONSE;
     }
 
@@ -100,28 +100,28 @@ private:
         std::string response = read_from_shared_file(SHARED_FILE);
 
         if (response == ERROR_MSG) {
-            std::cerr << "Клиент: получена ошибка от сервера: " << response << std::endl;
+            std::cerr << "Client: got error from server: " << response << std::endl;
             current_state = State::GET_USER_INPUT;
             return;
         }
 
         if (!response.empty() && response.find(SERVER_MSG) == 0) {
-            std::cout << "Клиент: получен ответ от сервера: \"" << response.substr(SERVER_MSG_SIZE) << "\""
+            std::cout << "Client: got message from server: \"" << response.substr(SERVER_MSG_SIZE) << "\""
                       << std::endl;
             current_state = State::GET_USER_INPUT;
             response_timeout_counter = 0;
         } else {
             ++response_timeout_counter;
-            std::cout << "Клиент: ответ сервера еще не готов" << std::endl;
+            std::cout << "Client: response from server is not ready yet" << std::endl;
             if (response_timeout_counter >= MAX_RESPONSE_WAIT) {
-                std::cerr << "Клиент: таймаут ожидания ответа от сервера исчерпан" << std::endl;
+                std::cerr << "Client: timeout waiting" << std::endl;
                 current_state = State::HANDLE_ERROR;
             }
         }
     }
 
     void handle_error_state() {
-        std::cout << "Клиент: состояние ошибки" << std::endl;
+        std::cout << "Client: error state" << std::endl;
         sleep(1);
         current_state = State::GET_USER_INPUT;
     }
